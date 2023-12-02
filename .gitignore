@@ -1,6 +1,2 @@
-# ignore everything
-*
-
-# except these
-!.gitignore
-!*/src/**
+*/Cargo.lock
+*/target

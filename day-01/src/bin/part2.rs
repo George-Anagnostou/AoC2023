@@ -37,3 +37,27 @@ fn parse_calibration_value(line: &str) -> i32 {
     num.push(last_digit);
     num.parse::<i32>().unwrap()
 }
+
+fn better_parse_calibration_value() {
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_calibration_value() {
+        assert_eq!(92, parse_calibration_value("nine92jnhgqzctpgbcbpz"));
+        assert_eq!(73, parse_calibration_value("sevensddvc73three"));
+        assert_eq!(98, parse_calibration_value("9986fmfqhdmq8"));
+
+        assert_ne!(12, parse_calibration_value("one4seven5two"));
+    }
+
+    #[test]
+    fn test_better_parse_calibration_value() {
+        assert_eq!(92, better_parse_calibration_value("nine92jnhgqzctpgbcbpz"));
+        assert_eq!(72, better_parse_calibration_value("lkajdsf7klsdftwo"));
+        assert_eq!(32, better_parse_calibration_value("lkjfew3seventeentwentytwo"));
+    }
+}
