@@ -1,30 +1,39 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
+use std::io::prelude::*;
 
 fn main() -> Result<(), Error> {
     let path = "input.txt";
-    let input = File::open(path)?;
-    let buffered = BufReader::new(input);
+    let input_string = open_path(path)?;
 
-    let mut sum = 0;
-    for line in buffered.lines() {
-        let num = get_line_number(line?);
-        sum += num;
-    }
-    println!("{}", sum);
+    let calibration_value = sum_callibrations(input_string);
+    println!("{}", calibration_value);
+
     Ok(())
 }
 
-fn get_line_number(line: String) -> i32 {
-    let first_idx = line.find(|x: char| x.is_digit(10)).unwrap();
-    let first_digit = line.chars().nth(first_idx).unwrap();
+fn open_path(path: &str) -> Result<String, Error> {
+    let mut input_file = File::open(path)?;
+    let mut input_string = String::new();
+    input_file.read_to_string(&mut input_string)?;
+    Ok(input_string)
+}
 
-    let last_idx = line.rfind(|x: char| x.is_digit(10)).unwrap();
-    let last_digit = line.chars().nth(last_idx).unwrap();
+fn sum_callibrations(input: String) -> i32 {
+    let mut sum = 0;
+    for line in input.lines() {
+        let num = parse_calibration_value(line);
+        sum += num;
+    }
+    sum
+}
 
-    let mut sum = String::new();
-    sum.push(first_digit);
-    sum.push(last_digit);
+fn parse_calibration_value(line: &str) -> i32 {
+    let first_digit = line.chars().find(|x| x.is_digit(10)).unwrap();
+    let last_digit = line.chars().rfind(|x| x.is_digit(10)).unwrap();
 
-    sum.parse::<i32>().unwrap()
+    let mut num = String::new();
+    num.push(first_digit);
+    num.push(last_digit);
+    num.parse::<i32>().unwrap()
 }
