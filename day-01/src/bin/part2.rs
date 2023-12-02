@@ -1,6 +1,8 @@
 use std::fs::File;
-use std::io::{BufReader, BufRead, Error};
+use std::io::Error;
 use std::io::prelude::*;
+
+use aho_corasick::AhoCorasick;
 
 fn main() -> Result<(), Error> {
     let path = "input.txt";
@@ -23,22 +25,48 @@ fn sum_callibrations(input: String) -> i32 {
     let mut sum = 0;
     for line in input.lines() {
         let num = parse_calibration_value(line);
+        // println!("{}: {}", line, &num);
         sum += num;
     }
     sum
 }
 
 fn parse_calibration_value(line: &str) -> i32 {
-    let first_digit = line.chars().find(|x| x.is_digit(10)).unwrap();
-    let last_digit = line.chars().rfind(|x| x.is_digit(10)).unwrap();
+    let patterns = &[
+        "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
 
-    let mut num = String::new();
-    num.push(first_digit);
-    num.push(last_digit);
+    let ac = AhoCorasick::new(patterns).unwrap();
+    let matches: Vec<usize> = ac
+        .find_overlapping_iter(line)
+        .map(|mat| mat.pattern().as_usize())
+        .collect();
+
+    let numbers: Vec<&str> = matches.into_iter()
+        .map(|idx| patterns[idx])
+        .collect();
+
+    let first_digit = convert_string_number(numbers.first().unwrap());
+    let last_digit = convert_string_number(numbers.last().unwrap());
+
+    let num = format!("{}{}", first_digit, last_digit);
     num.parse::<i32>().unwrap()
 }
 
-fn better_parse_calibration_value() {
+fn convert_string_number(number: &str) -> &str {
+    match number {
+        "one" => "1",
+        "two" => "2",
+        "three" => "3",
+        "four" => "4",
+        "five" => "5",
+        "six" => "6",
+        "seven" => "7",
+        "eight" => "8",
+        "nine" => "9",
+        _ => number,
+    }
 }
 
 #[cfg(test)]
@@ -48,16 +76,9 @@ mod tests {
     #[test]
     fn test_parse_calibration_value() {
         assert_eq!(92, parse_calibration_value("nine92jnhgqzctpgbcbpz"));
-        assert_eq!(73, parse_calibration_value("sevensddvc73three"));
-        assert_eq!(98, parse_calibration_value("9986fmfqhdmq8"));
-
-        assert_ne!(12, parse_calibration_value("one4seven5two"));
-    }
-
-    #[test]
-    fn test_better_parse_calibration_value() {
-        assert_eq!(92, better_parse_calibration_value("nine92jnhgqzctpgbcbpz"));
-        assert_eq!(72, better_parse_calibration_value("lkajdsf7klsdftwo"));
-        assert_eq!(32, better_parse_calibration_value("lkjfew3seventeentwentytwo"));
+        assert_eq!(72, parse_calibration_value("lkajdsf7klsdftwo"));
+        assert_eq!(32, parse_calibration_value("lkjfew3seventeentwentytwo"));
+        assert_eq!(43, parse_calibration_value("ljflewkfour342353seven3"));
+        assert_eq!(23, parse_calibration_value("twoneeighthree"));
     }
 }
