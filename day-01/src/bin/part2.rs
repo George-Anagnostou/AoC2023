@@ -25,7 +25,6 @@ fn sum_callibrations(input: String) -> i32 {
     let mut sum = 0;
     for line in input.lines() {
         let num = parse_calibration_value(line);
-        // println!("{}: {}", line, &num);
         sum += num;
     }
     sum
