@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{BufReader, BufRead, Error};
+use std::io::Error;
 use std::io::prelude::*;
 
 fn main() -> Result<(), Error> {
