@@ -99,7 +99,6 @@ fn get_all_non_adjacent_nums(input: &str) -> usize {
     let symbol_coordinates = get_symbol_coordinates(input);
     let non_adjacent_sum = num_areas
         .into_iter()
-        // .map(|num_area| num_area.number)
         .filter(|num_area| !check_num_area_for_symbol(num_area, &symbol_coordinates))
         .map(|num_area| num_area.number)
         .sum();
@@ -150,7 +149,6 @@ impl NumArea {
             }
         }
         Self {
-            // digit_coordinates,
             area,
             number,
         }
