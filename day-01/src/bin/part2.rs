@@ -1,11 +1,11 @@
 use std::fs::File;
-use std::io::Error;
 use std::io::prelude::*;
+use std::io::Error;
 
 use aho_corasick::AhoCorasick;
 
 fn main() -> Result<(), Error> {
-    let path = "input.txt";
+    let path = "src/day-01.txt";
     let input_string = open_path(path)?;
 
     let calibration_value = sum_callibrations(input_string);
@@ -32,8 +32,8 @@ fn sum_callibrations(input: String) -> i32 {
 
 fn parse_calibration_value(line: &str) -> i32 {
     let patterns = &[
-        "1", "2", "3", "4", "5", "6", "7", "8", "9",
-        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "one", "two", "three", "four", "five", "six",
+        "seven", "eight", "nine",
     ];
 
     let ac = AhoCorasick::new(patterns).unwrap();
@@ -42,9 +42,7 @@ fn parse_calibration_value(line: &str) -> i32 {
         .map(|mat| mat.pattern().as_usize())
         .collect();
 
-    let numbers: Vec<&str> = matches.into_iter()
-        .map(|idx| patterns[idx])
-        .collect();
+    let numbers: Vec<&str> = matches.into_iter().map(|idx| patterns[idx]).collect();
 
     let first_digit = convert_string_number(numbers.first().unwrap());
     let last_digit = convert_string_number(numbers.last().unwrap());

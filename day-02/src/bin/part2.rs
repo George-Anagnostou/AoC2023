@@ -7,7 +7,7 @@ use std::io::Error;
 // const BLUE_MAX: usize = 14;
 
 fn main() -> Result<(), Error> {
-    let path = "input.txt";
+    let path = "src/day-02.txt";
     let input = open_file(path)?;
 
     let mut sum = 0;
@@ -46,17 +46,22 @@ fn parse_input(input: &str) -> usize {
         let color = pair.last().unwrap();
         match (color, qty) {
             (&"blue", qty) => {
-                if qty > max_blue { max_blue = qty }
-            },
-            (&"red", qty) => {
-                if qty > max_red { max_red = qty }
-            },
-            (&"green", qty) => {
-                if qty > max_green { max_green = qty }
+                if qty > max_blue {
+                    max_blue = qty
+                }
             }
-            _ => ()
+            (&"red", qty) => {
+                if qty > max_red {
+                    max_red = qty
+                }
+            }
+            (&"green", qty) => {
+                if qty > max_green {
+                    max_green = qty
+                }
+            }
+            _ => (),
         }
-
     }
 
     let power = max_red * max_blue * max_green;

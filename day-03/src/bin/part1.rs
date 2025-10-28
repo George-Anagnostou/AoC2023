@@ -1,9 +1,20 @@
 use std::collections::HashSet;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::Error;
 // const SYMBOLS = ['+', '*', '$', '-', '%', '=', '@', '&', '#', '/'];
 fn main() {
-    let input = include_str!("../../input.txt");
-    let part_sum = calculate_part_numbers(input);
+    let path = "/src/day-03.txt";
+    let input = open_path(path).unwrap();
+    let part_sum = calculate_part_numbers(&input);
     println!("{}", part_sum);
+}
+
+fn open_path(path: &str) -> Result<String, Error> {
+    let mut input_file = File::open(path)?;
+    let mut input_string = String::new();
+    input_file.read_to_string(&mut input_string)?;
+    Ok(input_string)
 }
 
 #[derive(Debug, Clone)]
@@ -15,11 +26,7 @@ struct Coordinate {
 
 impl Coordinate {
     fn from(item: String, col: usize, row: usize) -> Self {
-        Self {
-            item,
-            col,
-            row,
-        }
+        Self { item, col, row }
     }
 }
 
@@ -32,8 +39,7 @@ fn get_symbols(input: &str) -> HashSet<char> {
             }
         }
     }
-    let symbols: HashSet<char> = symbols.into_iter()
-        .collect::<HashSet<char>>();
+    let symbols: HashSet<char> = symbols.into_iter().collect::<HashSet<char>>();
     symbols
 }
 
@@ -108,10 +114,10 @@ fn get_all_non_adjacent_nums(input: &str) -> usize {
 fn check_num_area_for_symbol(num_area: &NumArea, symbol_coordinates: &Vec<Coordinate>) -> bool {
     for symbol_coordinate in symbol_coordinates {
         for surrounding in &num_area.area {
-            if surrounding.col == symbol_coordinate.col &&
-                surrounding.row == symbol_coordinate.row {
-                    return true
-                }
+            if surrounding.col == symbol_coordinate.col && surrounding.row == symbol_coordinate.row
+            {
+                return true;
+            }
         }
     }
     false
@@ -125,7 +131,8 @@ struct NumArea {
 
 impl NumArea {
     fn from(digit_coordinates: Vec<Coordinate>) -> Self {
-        let number: String = digit_coordinates.clone()
+        let number: String = digit_coordinates
+            .clone()
             .into_iter()
             .map(|digit| digit.item.parse::<char>().unwrap())
             .collect();
@@ -148,9 +155,6 @@ impl NumArea {
                 x += 1;
             }
         }
-        Self {
-            area,
-            number,
-        }
+        Self { area, number }
     }
 }

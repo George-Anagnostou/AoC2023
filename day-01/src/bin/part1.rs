@@ -1,9 +1,9 @@
 use std::fs::File;
-use std::io::Error;
 use std::io::prelude::*;
+use std::io::Error;
 
 fn main() -> Result<(), Error> {
-    let path = "input.txt";
+    let path = "src/day-01.txt";
     let input_string = open_path(path)?;
 
     let calibration_value = sum_callibrations(input_string);

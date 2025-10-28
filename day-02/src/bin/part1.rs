@@ -3,7 +3,7 @@ use std::io::prelude::*;
 use std::io::Error;
 
 fn main() -> Result<(), Error> {
-    let path = "input.txt";
+    let path = "src/day-02.txt";
     let input = open_file(path)?;
 
     let mut sum = 0;
@@ -42,9 +42,15 @@ fn parse_input(input: &str) -> usize {
         let qty = pair.first().unwrap();
         let color = pair.last().unwrap();
 
-        if color == &"blue" && qty.parse::<usize>().unwrap() > BLUE_MAX { return 0 }
-        if color == &"red" && qty.parse::<usize>().unwrap() > RED_MAX { return 0 }
-        if color == &"green" && qty.parse::<usize>().unwrap() > GREEN_MAX { return 0 }
+        if color == &"blue" && qty.parse::<usize>().unwrap() > BLUE_MAX {
+            return 0;
+        }
+        if color == &"red" && qty.parse::<usize>().unwrap() > RED_MAX {
+            return 0;
+        }
+        if color == &"green" && qty.parse::<usize>().unwrap() > GREEN_MAX {
+            return 0;
+        }
     }
     game_id.parse::<usize>().unwrap()
 }
