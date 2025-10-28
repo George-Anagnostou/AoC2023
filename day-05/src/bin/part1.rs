@@ -1,7 +1,19 @@
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::Error;
+
 fn main() {
-    let input = include_str!("../../input.txt");
-    let lowest_location = find_lowest_location(input);
+    let path = "src/day-05.txt";
+    let input = open_file(path).unwrap();
+    let lowest_location = find_lowest_location(&input);
     println!("{}", lowest_location);
+}
+
+fn open_file(path: &str) -> Result<String, Error> {
+    let mut input_file = File::open(path)?;
+    let mut input_string = String::new();
+    input_file.read_to_string(&mut input_string)?;
+    Ok(input_string)
 }
 
 #[derive(Debug)]
@@ -34,7 +46,6 @@ fn get_location(seed: usize, mappings: &Vec<Vec<RangeMap>>) -> usize {
                 let diff = num - row.source_range;
                 num = row.destination_range + diff;
                 break;
-
             }
         }
     }
@@ -44,10 +55,13 @@ fn get_location(seed: usize, mappings: &Vec<Vec<RangeMap>>) -> usize {
 fn get_almanac(parsed_input: Vec<Vec<&str>>) -> Vec<Vec<RangeMap>> {
     parsed_input
         .into_iter()
-        .map(|section| section.into_iter()
-             .filter(|line| !line.is_empty())
-             .map(RangeMap::from)
-             .collect())
+        .map(|section| {
+            section
+                .into_iter()
+                .filter(|line| !line.is_empty())
+                .map(RangeMap::from)
+                .collect()
+        })
         .collect()
 }
 
@@ -64,14 +78,7 @@ fn get_seeds(parsed_input: &mut Vec<Vec<&str>>) -> Vec<usize> {
 fn parse_input(input: &str) -> Vec<Vec<&str>> {
     input
         .split("\n\n")
-        .map(|mapping|
-             mapping
-             .split(":")
-             .last()
-             .unwrap()
-             .lines()
-             .collect()
-        )
+        .map(|mapping| mapping.split(":").last().unwrap().lines().collect())
         .collect()
 }
 

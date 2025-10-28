@@ -1,9 +1,20 @@
-use std::collections::HashMap;
 use regex::Regex;
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::Error;
 fn main() {
-    let input = include_str!("../../input.txt");
-    let gear_ratio_sum = sum_gear_ratios(input);
+    let path = "src/day-03.txt";
+    let input = open_path(path).unwrap();
+    let gear_ratio_sum = sum_gear_ratios(&input);
     println!("{}", gear_ratio_sum);
+}
+
+fn open_path(path: &str) -> Result<String, Error> {
+    let mut input_file = File::open(path)?;
+    let mut input_string = String::new();
+    input_file.read_to_string(&mut input_string)?;
+    Ok(input_string)
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -22,10 +33,7 @@ impl Coordinate {
 }
 
 fn sum_gear_ratios(input: &str) -> usize {
-    let board: Vec<String> = input
-        .lines()
-        .map(|line| line.trim().to_string())
-        .collect();
+    let board: Vec<String> = input.lines().map(|line| line.trim().to_string()).collect();
 
     let regex = Regex::new(r"\d+").unwrap();
     let mut gear_nums: HashMap<Coordinate, Vec<usize>> = HashMap::new();
@@ -43,7 +51,8 @@ fn sum_gear_ratios(input: &str) -> usize {
                 for j in start_x..=end_x {
                     if let Some(c) = &board.get(i).and_then(|line| line.chars().nth(j)) {
                         if *c == '*' {
-                            gear_nums.entry(Coordinate::from((i, j), c.to_owned()))
+                            gear_nums
+                                .entry(Coordinate::from((i, j), c.to_owned()))
                                 .or_insert(Vec::new())
                                 .push(num);
                         }

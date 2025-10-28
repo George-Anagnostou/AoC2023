@@ -1,7 +1,11 @@
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::Error;
 
 fn main() {
-    let input = include_str!("../../input.txt");
+    let path = "src/day-04.txt";
+    let input = open_file(path).unwrap();
     let total_scratchcards = calculate_total_scratchcards(&input);
     println!("{}", total_scratchcards);
 }
@@ -9,17 +13,25 @@ fn main() {
 fn calculate_total_scratchcards(input: &str) -> usize {
     let card_map = create_card_map(&input);
 
-    card_map
-        .values()
-        .sum()
+    card_map.values().sum()
+}
+
+fn open_file(path: &str) -> Result<String, Error> {
+    let mut input_file = File::open(path)?;
+    let mut input_string = String::new();
+    input_file.read_to_string(&mut input_string)?;
+    Ok(input_string)
 }
 
 fn parse_line(line: &str) -> (usize, Vec<usize>, Vec<usize>) {
     let (card_number, values) = line.split_once(":").unwrap();
-    let card_number = card_number.split_whitespace().last().unwrap().parse::<usize>().unwrap();
-    let (winners, ours) = values
-        .split_once("|")
+    let card_number = card_number
+        .split_whitespace()
+        .last()
+        .unwrap()
+        .parse::<usize>()
         .unwrap();
+    let (winners, ours) = values.split_once("|").unwrap();
 
     let winners_vec: Vec<usize> = winners
         .split_whitespace()
@@ -48,11 +60,7 @@ fn get_line_total(line_pair: (usize, Vec<usize>, Vec<usize>)) -> usize {
 fn create_card_map(input: &str) -> HashMap<usize, usize> {
     let mut card_counts: HashMap<usize, usize> = HashMap::new();
 
-    let num_matches: Vec<usize> = input
-        .lines()
-        .map(parse_line)
-        .map(get_line_total)
-        .collect();
+    let num_matches: Vec<usize> = input.lines().map(parse_line).map(get_line_total).collect();
 
     for (row, look_ahead) in num_matches.iter().enumerate() {
         card_counts
@@ -82,17 +90,50 @@ mod tests {
     use super::*;
     #[test]
     fn test_parse_line() {
-        assert_eq!(parse_line("Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53"),
-                   (1, vec![41, 48, 83, 86, 17], vec![83, 86, 6, 31, 17, 9, 48, 53]));
-        assert_eq!(parse_line("Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19"),
-                   (2, vec![13, 32, 20, 16, 61], vec![61, 30, 68, 82, 17, 32, 24, 19]));
+        assert_eq!(
+            parse_line("Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53"),
+            (
+                1,
+                vec![41, 48, 83, 86, 17],
+                vec![83, 86, 6, 31, 17, 9, 48, 53]
+            )
+        );
+        assert_eq!(
+            parse_line("Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19"),
+            (
+                2,
+                vec![13, 32, 20, 16, 61],
+                vec![61, 30, 68, 82, 17, 32, 24, 19]
+            )
+        );
     }
 
     #[test]
     fn test_get_line_total() {
-        assert_eq!(get_line_total((1, vec![41, 48, 83, 86, 17], vec![83, 86, 6, 31, 17, 9, 48, 53])), 4);
-        assert_eq!(get_line_total((2, vec![13, 32, 20, 16, 61], vec![61, 30, 68, 82, 17, 32, 24, 19])), 2);
-        assert_eq!(get_line_total((5, vec![87, 83, 26, 28, 32], vec![88, 30, 70, 12, 93, 22, 82, 36])), 0);
+        assert_eq!(
+            get_line_total((
+                1,
+                vec![41, 48, 83, 86, 17],
+                vec![83, 86, 6, 31, 17, 9, 48, 53]
+            )),
+            4
+        );
+        assert_eq!(
+            get_line_total((
+                2,
+                vec![13, 32, 20, 16, 61],
+                vec![61, 30, 68, 82, 17, 32, 24, 19]
+            )),
+            2
+        );
+        assert_eq!(
+            get_line_total((
+                5,
+                vec![87, 83, 26, 28, 32],
+                vec![88, 30, 70, 12, 93, 22, 82, 36]
+            )),
+            0
+        );
     }
 
     #[test]
