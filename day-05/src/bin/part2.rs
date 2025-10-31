@@ -6,14 +6,53 @@ fn main() {
     let path = "src/day-05.txt";
     let input = open_file(path).unwrap();
     let lowest_location = find_lowest_location(&input);
-    println!("{}", lowest_location);
+    println!("lowest seed: {}", lowest_location);
 }
 
-fn open_file(path: &str) -> Result<String, Error> {
-    let mut input_file = File::open(path)?;
-    let mut input_string = String::new();
-    input_file.read_to_string(&mut input_string)?;
-    Ok(input_string)
+fn find_lowest_location(input: &str) -> usize {
+    println!("Finding lowest location...");
+    let mut parsed_input = parse_input(&input);
+    println!("Parsed input...");
+    let seeds_vec = get_seeds_vec(&mut parsed_input);
+    println!("Got seeds vec...");
+    let seed_maps = get_seed_maps(seeds_vec);
+    println!("Got seeds map...");
+    let mut all_seeds: Vec<usize> = Vec::new();
+    for seed_map in &seed_maps {
+        let seeds = seed_map.list_seeds();
+        all_seeds.extend(&seeds);
+    }
+    println!("Got all seeds...");
+    let mappings = get_almanac(parsed_input);
+    println!("Got almanac...");
+    all_seeds
+        .into_iter()
+        .map(|seed| get_location(seed, &mappings))
+        .min()
+        .unwrap()
+}
+
+#[derive(Debug)]
+struct SeedMap {
+    start: usize,
+    length: usize,
+}
+
+impl SeedMap {
+    fn from(chunk: &[usize]) -> Self {
+        Self {
+            start: chunk[0],
+            length: chunk[1],
+        }
+    }
+
+    fn list_seeds(&self) -> Vec<usize> {
+        let mut seed_list: Vec<usize> = Vec::with_capacity(self.length);
+        for i in self.start..self.start + self.length {
+            seed_list.push(i);
+        }
+        seed_list
+    }
 }
 
 #[derive(Debug)]
@@ -65,13 +104,20 @@ fn get_almanac(parsed_input: Vec<Vec<&str>>) -> Vec<Vec<RangeMap>> {
         .collect()
 }
 
-fn get_seeds(parsed_input: &mut Vec<Vec<&str>>) -> Vec<usize> {
+fn get_seeds_vec(parsed_input: &mut Vec<Vec<&str>>) -> Vec<usize> {
     parsed_input
         .remove(0)
         .first()
         .unwrap()
         .split_whitespace()
         .map(|num| num.parse::<usize>().unwrap())
+        .collect()
+}
+
+fn get_seed_maps(seed_vec: Vec<usize>) -> Vec<SeedMap> {
+    seed_vec
+        .chunks(2)
+        .map(|chunk| SeedMap::from(chunk))
         .collect()
 }
 
@@ -82,16 +128,11 @@ fn parse_input(input: &str) -> Vec<Vec<&str>> {
         .collect()
 }
 
-fn find_lowest_location(input: &str) -> usize {
-    let mut parsed_input = parse_input(input);
-    let seeds = get_seeds(&mut parsed_input);
-    let mappings = get_almanac(parsed_input);
-
-    seeds
-        .into_iter()
-        .map(|seed| get_location(seed, &mappings))
-        .min()
-        .unwrap()
+fn open_file(path: &str) -> Result<String, Error> {
+    let mut input_file = File::open(path)?;
+    let mut input_string = String::new();
+    input_file.read_to_string(&mut input_string)?;
+    Ok(input_string)
 }
 
 #[cfg(test)]
@@ -102,6 +143,6 @@ mod tests {
     fn test_find_lowest_location() {
         let path = "../src/day-05.small.txt";
         let input = open_file(path).unwrap();
-        assert_eq!(find_lowest_location(&input), 35);
+        assert_eq!(find_lowest_location(&input), 46);
     }
 }
